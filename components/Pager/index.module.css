@@ -1,0 +1,50 @@
+.pager_container {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 1000px;
+  padding: 0rem 1rem;
+}
+
+.pager_currency {
+  color: #ac00c8;
+}
+
+.button_next,
+.button_back {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.button_next:hover,
+.button_back:hover {
+  opacity: 50%;
+  transition: 200ms;
+}
+
+.button_back:disabled {
+  opacity: 20%;
+  cursor: not-allowed;
+}
+
+.pager_select {
+  background-color: none;
+  color: #ac00c8;
+  background: none;
+  padding: 0.2rem;
+  margin-left: 10px;
+  border: 1px solid #ac00c8;
+  outline: none;
+  border-radius: 4px;
+}
+
+.pager_select_option {
+  background-color: #ac00c8;
+  color: white;
+}

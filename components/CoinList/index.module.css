@@ -1,0 +1,21 @@
+.coin_list_container {
+  height: 600px;
+  border: 1px solid #ac00c8;
+  border-radius: 4px;
+  overflow: auto;
+  padding: 1rem;
+  width: 1000px;
+}
+
+.coin_list_container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.coin_list_container::-webkit-scrollbar-track {
+  background: #888;
+}
+
+.coin_list_container::-webkit-scrollbar-thumb {
+  background: #ac00c8;
+  border-radius: 8px;
+}

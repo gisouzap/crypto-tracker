@@ -1,65 +1,126 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import { useState, useEffect } from 'react';
+import Router, { withRouter } from 'next/router';
+import Loader from 'react-loader-spinner';
 
-export default function Home() {
+import SearchBar from '../components/SearchBar';
+import CoinList from '../components/CoinList';
+import Layout from '../components/Layout';
+import Pager from '../components/Pager';
+
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
+
+function Home({ filteredCoins, router }) {
+  const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentCurrency, setCurrentCurrency] = useState('usd');
+  const [resultsPerPage, setResultsPerPage] = useState();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const start = () => {
+      setLoading(true);
+    };
+    const end = () => {
+      setLoading(false);
+    };
+    Router.events.on('routeChangeStart', start);
+    Router.events.on('routeChangeComplete', end);
+    Router.events.on('routeChangeError', end);
+    return () => {
+      Router.events.off('routeChangeStart', start);
+      Router.events.off('routeChangeComplete', end);
+      Router.events.off('routeChangeError', end);
+    };
+  }, []);
+
+  const allCoins = filteredCoins.filter(coin =>
+    coin.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleChange = e => {
+    e.preventDefault;
+    setSearch(e.target.value.toLowerCase());
+  };
+
+  const resultsPerPageHandler = value => {
+    const currentPath = router.pathname;
+    const currentQuery = router.query;
+    currentQuery.results = value;
+
+    router.push({
+      pathname: currentPath,
+      query: currentQuery,
+    });
+  };
+
+  const paginationHandler = page => {
+    const currentPath = router.pathname;
+    const currentQuery = router.query;
+    currentQuery.page = page;
+    setCurrentPage(page);
+
+    router.push({
+      pathname: currentPath,
+      query: currentQuery,
+    });
+  };
+
+  const currencyHandler = currency => {
+    const currentPath = router.pathname;
+    const currentQuery = router.query;
+    currentQuery.currency = currency;
+    setCurrentCurrency(currency);
+    router.push({
+      pathname: currentPath,
+      query: currentQuery,
+    });
+  };
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+    <>
+      <Layout>
+        <div className="coin_app">
+          <SearchBar placeholder="Search" onChange={handleChange} />
+          <CoinList filteredCoins={allCoins} />
+          <Pager
+            onChange={paginationHandler}
+            currentPage={currentPage}
+            currency={currentCurrency}
+            onChangeResultsPerPage={resultsPerPageHandler}
+          />
         </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+      </Layout>
+      {loading && (
+        <div className="loading_container">
+          <Loader
+            type="Puff"
+            color="#ac00c8"
+            height={100}
+            width={100}
+            timeout={3000}
+          />
+        </div>
+      )}
+    </>
+  );
 }
+
+export const getServerSideProps = async ({ query }) => {
+  const page = query.page || 1;
+  const currency = query.currency || 'usd';
+  const results = query.results || 10;
+
+  const res = await fetch(
+    `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}&order=market_cap_desc&per_page=${results}&page=${page}&sparkline=false`
+  );
+
+  const filteredCoins = await res.json();
+
+  return {
+    props: {
+      filteredCoins,
+    },
+  };
+};
+
+export default withRouter(Home);
