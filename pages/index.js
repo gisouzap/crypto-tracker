@@ -12,8 +12,6 @@ import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 function Home({ filteredCoins, router }) {
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentCurrency, setCurrentCurrency] = useState('usd');
-  const [resultsPerPage, setResultsPerPage] = useState();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -42,50 +40,34 @@ function Home({ filteredCoins, router }) {
     setSearch(e.target.value.toLowerCase());
   };
 
-  const resultsPerPageHandler = value => {
+  const updateRouter = (path, value) => {
     const currentPath = router.pathname;
     const currentQuery = router.query;
-    currentQuery.results = value;
+    currentQuery[path] = value;
 
     router.push({
       pathname: currentPath,
       query: currentQuery,
     });
   };
+
+  const resultsPerPageHandler = value => updateRouter('results', value);
 
   const paginationHandler = page => {
-    const currentPath = router.pathname;
-    const currentQuery = router.query;
-    currentQuery.page = page;
+    updateRouter('page', page);
     setCurrentPage(page);
-
-    router.push({
-      pathname: currentPath,
-      query: currentQuery,
-    });
-  };
-
-  const currencyHandler = currency => {
-    const currentPath = router.pathname;
-    const currentQuery = router.query;
-    currentQuery.currency = currency;
-    setCurrentCurrency(currency);
-    router.push({
-      pathname: currentPath,
-      query: currentQuery,
-    });
   };
 
   return (
     <>
       <Layout>
         <div className="coin_app">
-          <SearchBar placeholder="Search" onChange={handleChange} />
+          <SearchBar onChange={handleChange} />
           <CoinList filteredCoins={allCoins} />
           <Pager
             onChange={paginationHandler}
             currentPage={currentPage}
-            currency={currentCurrency}
+            currency="usd"
             onChangeResultsPerPage={resultsPerPageHandler}
           />
         </div>
@@ -107,11 +89,10 @@ function Home({ filteredCoins, router }) {
 
 export const getServerSideProps = async ({ query }) => {
   const page = query.page || 1;
-  const currency = query.currency || 'usd';
   const results = query.results || 10;
 
   const res = await fetch(
-    `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}&order=market_cap_desc&per_page=${results}&page=${page}&sparkline=false`
+    `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${results}&page=${page}&sparkline=false`
   );
 
   const filteredCoins = await res.json();

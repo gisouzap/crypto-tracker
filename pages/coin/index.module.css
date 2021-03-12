@@ -1,8 +1,9 @@
 .coin_page {
   display: flex;
   justify-content: center;
-  height: 74vh;
   align-items: center;
+  flex-direction: column;
+  margin-top: 1.5rem;
 }
 
 .coin_container {
@@ -25,4 +26,25 @@
 
 .coin_current {
   font-size: 2rem;
+}
+
+.coin_back_button {
+  width: 200px;
+  background-color: #ac00c8;
+  color: white;
+  margin-top: 1.5rem;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  transform: scale(1);
+  transition: ease-out 200ms;
+}
+
+.coin_back_button:hover {
+  transform: scale(1.02);
+  transition: ease-in 200ms;
 }

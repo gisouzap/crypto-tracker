@@ -22,15 +22,15 @@ const Coins = ({
               <p className={styles.symbol}>{symbol}</p>
             </div>
             <div className={styles.coin_data}>
-              <p className={styles.coin_price}>{price}</p>
+              <p className={styles.coin_price}>${price}</p>
               <p className={styles.coin_volume}>${volume.toLocaleString()}</p>
               {priceChange < 0 ? (
                 <p className={(styles.coin_percent, styles.red)}>
-                  {priceChange.toFixed(2)}%
+                  {priceChange?.toFixed(2) || 0}%
                 </p>
               ) : (
                 <p className={(styles.coin_percent, styles.green)}>
-                  {priceChange.toFixed(2)}%
+                  {priceChange?.toFixed(2) || 0}%
                 </p>
               )}
               <p className={styles.marketCap}>
